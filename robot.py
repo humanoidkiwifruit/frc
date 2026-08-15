@@ -118,7 +118,8 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def robotPeriodic(self):
-        self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
+        pass
+        #self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
 
     def teleopInit(self):
         #print("entering teleopInit (teleoperation/remote control initialisation function)")

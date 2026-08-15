@@ -131,13 +131,15 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def robotPeriodic(self):
-        self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
+        self.loop.poll()
+        pass
+        #self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
 
     def teleopInit(self):
         #print("entering teleopInit (teleoperation/remote control initialisation function)")
         self.stop_shooting_motors()
         self.robotDrive.arcadeDrive(0, 0)
-        
+
     def teleopPeriodic(self):
         # Drive with tank drive.
         # That means that the Y axis of the left stick moves the left side
@@ -166,8 +168,8 @@ class MyRobot(wpilib.TimedRobot):
             self.robotDrive.tankDrive(
                 -self.driverController.getLeftY(), -self.driverController.getRightY()
             )
-
-        self.loop.poll()
+            
+        # self.loop.poll()
 
 
         if self.driverController.getRightTriggerAxis() > self.shootThreshold:
