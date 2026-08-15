@@ -4,6 +4,8 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 
+
+# NO AUTONOMOUS - AFTER TALKING TO ARCHIE
 import wpilib
 import wpilib.drive
 import rev
@@ -119,6 +121,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def robotPeriodic(self):
         pass
+        self.loop.poll()
         #self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
 
     def teleopInit(self):
@@ -156,7 +159,7 @@ class MyRobot(wpilib.TimedRobot):
             #self.left_motor_group.set(0)
             #self.right_motor_group.set(0)
 
-        self.loop.poll()
+        #self.loop.poll()
 
 
         if self.driverController.getRightTriggerAxis() > self.shootThreshold:
@@ -177,8 +180,17 @@ class MyRobot(wpilib.TimedRobot):
         #shoot
 
     def autonomousPeriodic(self):
-        #print("autonomousPeriodic")
-        if self.timer.get() < 1.5:
+        if self.timer.get() < 19:
+            #print("autonomousPeriodic")
+            self.left_shooting_motor.set(self.shooting_speed)
+            self.right_shooting_motor.set(self.shooting_speed)
+            self.robotDrive.arcadeDrive(0, 0)
+            self.robotDrive.stopMotor()
+
+        else:
+            self.right_shooting_motor.set(0)
+            self.left_shooting_motor.set(0)
+        '''if self.timer.get() < 1.5:
             self.robotDrive.arcadeDrive(0.5, 0, squareInputs=False)
 
         elif self.timer.get() > 1.5 and self.timer.get() < 2:
@@ -204,4 +216,4 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.robotDrive.stopMotor()  # Stop robot
             self.right_shooting_motor.set(0)
-            self.left_shooting_motor.set(0)
+            self.left_shooting_motor.set(0)'''

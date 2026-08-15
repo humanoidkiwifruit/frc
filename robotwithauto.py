@@ -6,17 +6,12 @@
 
 import wpilib
 import wpilib.drive
-from wpilib import SendableChooser, SmartDashboard
 import rev
 from ntcore import NetworkTableInstance
 
 
 
 class MyRobot(wpilib.TimedRobot):
-
-    def stop_shooting_motors(self):
-        self.left_shooting_motor.set(0)
-        self.right_shooting_motor.set(0)
 
     def rt_pressed(self):
         #print("rt_pressed")
@@ -62,14 +57,6 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def robotInit(self):
-
-        self.auto_chooser = SendableChooser()
-        self.auto_chooser.setDefaultOption("do_nothing", "do_nothing")
-        self.auto_chooser.addOption("forward_and_shoot", "forward_and_shoot")
-        self.auto_chooser.addOption("oli_auto", "oli_auto")
-        
-        SmartDashboard.putData("Autonomous Chooser", self.auto_chooser)
-
 
         self.timer = wpilib.Timer()
         #print("robotInit (robot initialisation function)")
@@ -131,14 +118,16 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def robotPeriodic(self):
-        self.loop.poll()
         pass
+        self.loop.poll()
         #self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
 
     def teleopInit(self):
         #print("entering teleopInit (teleoperation/remote control initialisation function)")
-        self.stop_shooting_motors()
         self.robotDrive.arcadeDrive(0, 0)
+        self.right_shooting_motor.set(0)
+        self.left_shooting_motor.set(0)
+        pass
 
     def teleopPeriodic(self):
         # Drive with tank drive.
@@ -149,11 +138,7 @@ class MyRobot(wpilib.TimedRobot):
         left_bumper_down = self.driverController.getLeftBumper()
         right_bumper_down = self.driverController.getRightBumper()
         #loop poll was here before
-        if self.driverController.getAButton():
-            print("A button is down")
-            self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
-
-        elif left_bumper_down == right_bumper_down: #no bumpers OR both bumpers: normal tank drive
+        if left_bumper_down == right_bumper_down: #no bumpers OR both bumpers: normal tank drive
             self.robotDrive.tankDrive(
                 -self.driverController.getLeftY(), -self.driverController.getRightY()
             )
@@ -165,22 +150,25 @@ class MyRobot(wpilib.TimedRobot):
             self.robotDrive.arcadeDrive(0, -1.0, squareInputs=False)
             #self.left_motor_group.set(1)
             #self.right_motor_group.set(-1)
-        else: #Something weird
+        else:
             self.robotDrive.tankDrive(
                 -self.driverController.getLeftY(), -self.driverController.getRightY()
             )
+            #self.left_motor_group.set(0)
+            #self.right_motor_group.set(0)
 
-        # self.loop.poll()
+        #self.loop.poll()
 
 
         if self.driverController.getRightTriggerAxis() > self.shootThreshold:
             pass
-            #DO NOT REMOVE FOLLOWING COMMENT:
             #print("shoot the cannon pow pow")
+            #motor.set(0.5)
+            #self.right_shooting_motor.set(0.5)
+            #self.left_shooting_motor.set(0.5)
 
     def autonomousInit(self):
         self.timer.restart()
-        self.selected_auto = self.auto_chooser.getSelected()
         #print("Entering autonomousInit (autonomous period initialisation function)")
         #start far right
         #forward under trench
@@ -191,44 +179,30 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousPeriodic(self):
         #print("autonomousPeriodic")
-        if self.selected_auto == "oli_auto":
-            print("oli auto")
+        if self.timer.get() < 1.5:
+            self.robotDrive.arcadeDrive(0.5, 0, squareInputs=False)
 
-            if self.timer.get() < 1.5:
-                self.robotDrive.arcadeDrive(0.5, 0, squareInputs=False)
+        elif self.timer.get() > 1.5 and self.timer.get() < 2:
+            self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
 
-            elif self.timer.get() > 1.5 and self.timer.get() < 2:
-                self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
+        elif self.timer.get() > 2 and self.timer.get() < 3:
+            self.robotDrive.arcadeDrive(0.5, 0, squareInputs=False)
 
-            elif self.timer.get() > 2 and self.timer.get() < 3:
-                self.robotDrive.arcadeDrive(0.5, 0, squareInputs=False)
+        elif self.timer.get() > 3 and self.timer.get() < 3.5:
+            self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
+        
+        elif self.timer.get() > 3.5 and self.timer.get() < 4:
+            self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
 
-            elif self.timer.get() > 3 and self.timer.get() < 3.5:
-                self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
-            
-            elif self.timer.get() > 3.5 and self.timer.get() < 4:
-                self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
+        elif self.timer.get() > 4 and self.timer.get() < 5:
+            self.robotDrive.arcadeDrive(-1, 0, squareInputs=False)
 
-            elif self.timer.get() > 4 and self.timer.get() < 5:
-                self.robotDrive.arcadeDrive(-1, 0, squareInputs=False)
-
-            elif self.timer.get() > 5 and self.timer.get() < 15:
-                self.left_shooting_motor.set(self.shooting_speed)
-                self.right_shooting_motor.set(self.shooting_speed)
-
-            else:
-                self.robotDrive.stopMotor()  # Stop robot
-                self.stop_shooting_motors()
-        elif self.selected_auto == "do_nothing":
-            print("do_nothing")
+        elif self.timer.get() > 5 and self.timer.get() < 15:
+            self.left_shooting_motor.set(self.shooting_speed)
+            self.right_shooting_motor.set(self.shooting_speed)
             self.robotDrive.arcadeDrive(0, 0)
-        elif self.selected_auto == "forward_and_shoot":
-            if self.timer.get() > 19:
-                print("forward_and_shoot")
-                self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
-            else:
-                self.robotDrive.stopMotor()
-                self.stop_shooting_motors()
+
         else:
-            print("wrong selection: following else block")
-            self.robotDrive.arcadeDrive(0, 0)
+            self.robotDrive.stopMotor()  # Stop robot
+            self.right_shooting_motor.set(0)
+            self.left_shooting_motor.set(0)
