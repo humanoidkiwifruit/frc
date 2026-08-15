@@ -14,6 +14,10 @@ from ntcore import NetworkTableInstance
 
 class MyRobot(wpilib.TimedRobot):
 
+    def stop_shooting_motors(self):
+        self.left_shooting_motor.set(0)
+        self.right_shooting_motor.set(0)
+
     def rt_pressed(self):
         #print("rt_pressed")
         self.left_shooting_motor.set(-self.shooting_speed)
@@ -62,7 +66,8 @@ class MyRobot(wpilib.TimedRobot):
         self.auto_chooser = SendableChooser()
         self.auto_chooser.setDefaultOption("do_nothing", "do_nothing")
         self.auto_chooser.setDefaultOption("forward_and_shoot", "forward_and_shoot")
-
+        self.auto_chooser.setDefaultOption("oli_auto", "oli_auto")
+        
         SmartDashboard.putData("Autonomous Chooser", self.auto_chooser)
 
 
@@ -130,8 +135,9 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopInit(self):
         #print("entering teleopInit (teleoperation/remote control initialisation function)")
-        pass
-
+        self.stop_shooting_motors()
+        self.robotDrive.arcadeDrive(0, 0)
+        
     def teleopPeriodic(self):
         # Drive with tank drive.
         # That means that the Y axis of the left stick moves the left side
@@ -156,20 +162,18 @@ class MyRobot(wpilib.TimedRobot):
             self.robotDrive.arcadeDrive(0, -1.0, squareInputs=False)
             #self.left_motor_group.set(1)
             #self.right_motor_group.set(-1)
-        else: #Both bumpers are pressed
-            pass
-            #self.left_motor_group.set(0)
-            #self.right_motor_group.set(0)
+        else: #Something weird
+            self.robotDrive.tankDrive(
+                -self.driverController.getLeftY(), -self.driverController.getRightY()
+            )
 
         self.loop.poll()
 
 
         if self.driverController.getRightTriggerAxis() > self.shootThreshold:
             pass
+            #DO NOT REMOVE FOLLOWING COMMENT:
             #print("shoot the cannon pow pow")
-            #motor.set(0.5)
-            #self.right_shooting_motor.set(0.5)
-            #self.left_shooting_motor.set(0.5)
 
     def autonomousInit(self):
         self.timer.restart()
@@ -211,13 +215,17 @@ class MyRobot(wpilib.TimedRobot):
 
             else:
                 self.robotDrive.stopMotor()  # Stop robot
+                self.stop_shooting_motors()
         elif self.selected_auto == "do_nothing":
             print("do_nothing")
             self.robotDrive.arcadeDrive(0, 0)
         elif self.selected_auto == "forward_and_shoot":
-            print("forward_and_shoot")
-            self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
-            self.rt_pressed()
+            if self.timer.get() > 19:
+                print("forward_and_shoot")
+                self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
+            else:
+                self.robotDrive.stopMotor()
+                self.stop_shooting_motors()
         else:
             print("wrong selection: following else block")
             self.robotDrive.arcadeDrive(0, 0)
