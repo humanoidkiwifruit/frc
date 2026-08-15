@@ -4,6 +4,9 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 
+
+
+# new stuff: stop/start_shooting_motors(), choosing modes, moved polling, A button to move forwards.
 import wpilib
 import wpilib.drive
 from wpilib import SendableChooser, SmartDashboard
@@ -18,15 +21,17 @@ class MyRobot(wpilib.TimedRobot):
         self.left_shooting_motor.set(0)
         self.right_shooting_motor.set(0)
 
-    def rt_pressed(self):
-        #print("rt_pressed")
+    def start_shooting_motors(self):
         self.left_shooting_motor.set(-self.shooting_speed)
         self.right_shooting_motor.set(self.shooting_speed)
 
+    def rt_pressed(self):
+        #print("rt_pressed")
+        self.start_shooting_motors()
+
     def rt_released(self):
         #print("rt_released")
-        self.left_shooting_motor.set(0)
-        self.right_shooting_motor.set(0)
+        self.stop_shooting_motors()
 
     def lt_pressed(self):
         #print("lt_pressed")
@@ -35,8 +40,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def lt_released(self):
         #print("lt_released")
-        self.left_shooting_motor.set(0)
-        self.right_shooting_motor.set(0)
+        self.stop_shooting_motors()
 
 
     def rb_pressed(self):
@@ -213,8 +217,7 @@ class MyRobot(wpilib.TimedRobot):
                 self.robotDrive.arcadeDrive(-1, 0, squareInputs=False)
 
             elif self.timer.get() > 5 and self.timer.get() < 15:
-                self.left_shooting_motor.set(self.shooting_speed)
-                self.right_shooting_motor.set(self.shooting_speed)
+                self.start_shooting_motors()
 
             else:
                 self.robotDrive.stopMotor()  # Stop robot
@@ -226,6 +229,13 @@ class MyRobot(wpilib.TimedRobot):
             if self.timer.get() > 19:
                 print("forward_and_shoot")
                 self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
+
+            else:
+                self.robotDrive.stopMotor()
+                self.stop_shooting_motors()
+        elif self.selected_auto == "shoot":
+            if self.timer.get() > 19:
+                print("shoot")
             else:
                 self.robotDrive.stopMotor()
                 self.stop_shooting_motors()
