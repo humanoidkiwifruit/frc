@@ -148,8 +148,10 @@ class MyRobot(wpilib.TimedRobot):
             self.robotDrive.arcadeDrive(0, -1.0, squareInputs=False)
             #self.left_motor_group.set(1)
             #self.right_motor_group.set(-1)
-        else: #Both bumpers are pressed
-            pass
+        else:
+            self.robotDrive.tankDrive(
+                -self.driverController.getLeftY(), -self.driverController.getRightY()
+            )
             #self.left_motor_group.set(0)
             #self.right_motor_group.set(0)
 
@@ -196,6 +198,9 @@ class MyRobot(wpilib.TimedRobot):
         elif self.timer.get() > 5 and self.timer.get() < 15:
             self.left_shooting_motor.set(self.shooting_speed)
             self.right_shooting_motor.set(self.shooting_speed)
+            self.robotDrive.arcadeDrive(0, 0)
 
         else:
             self.robotDrive.stopMotor()  # Stop robot
+            self.right_shooting_motor.set(0)
+            self.left_shooting_motor.set(0)
