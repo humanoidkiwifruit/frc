@@ -20,7 +20,7 @@ from ntcore import NetworkTableInstance
 
 class MyRobot(wpilib.TimedRobot):
 
-    def arcade_drve_wrapper(self, xspeed, zrotation):
+    def arcade_drive_wrapper(self, xspeed, zrotation):
         self.robotDrive.arcadeDrive(xspeed * self.drive_speed, zrotation)
 
     def start_blurting_balls(self):
@@ -179,9 +179,9 @@ class MyRobot(wpilib.TimedRobot):
         #loop poll was here before
         if self.driverController.getYButton():
             self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
-            
+
         elif self.driverController.getAButton():
-            self.arcade_drive_wrapper(-1, 0, squareInputs=False)
+            self.robotDrive.arcadeDrive(-1, 0, squareInputs=False)
 
         elif left_bumper_down == right_bumper_down: #no bumpers OR both bumpers: normal tank drive
             self.robotDrive.tankDrive(
@@ -269,8 +269,8 @@ class MyRobot(wpilib.TimedRobot):
         elif self.selected_auto == "half_sec_back_and_shoot":
             #ROBOT NEEDS TO BE BACKWARDS
 
-            if self.timer.get() < 0.5:
-                self.robotDrive.arcadeDrive(0.7, 0)
+            if self.timer.get() < 0.25:
+                self.robotDrive.arcadeDrive(0.6, 0)
                 self.start_shooting()
             elif self.timer.get() < 19:
                 self.start_shooting()
