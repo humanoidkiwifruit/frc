@@ -20,44 +20,48 @@ from ntcore import NetworkTableInstance
 
 class MyRobot(wpilib.TimedRobot):
 
-    def arcade_drve_wrapper(self, xspeed, zrotation):
-        self.robotDrive.arcadeDrive(xspeed * self.drive_speed, zrotation)
-
     def start_blurting_balls(self):
+        # Release the balls from the intake. Notably different from shooting.
         self.left_shooting_motor.set(self.shooting_speed)
         self.right_shooting_motor.set(self.shooting_speed)
 
     def stop_shooting_motors(self):
+        # Halt all movement from the shooting motors.
         self.left_shooting_motor.set(0)
         self.right_shooting_motor.set(0)
 
     def start_shooting(self):
+        # Start the shooting motors such that they will shoot the balls.
         self.left_shooting_motor.set(-self.shooting_speed)
         self.right_shooting_motor.set(self.shooting_speed)
 
     def rt_pressed(self):
+        # Start shooting on pressing of the right trigger.
         self.start_shooting()
 
     def rt_released(self):
+        # Stop the shooting motors on release of the right trigger.
         self.stop_shooting_motors()
 
     def lt_pressed(self):
-        #motors neetd to go bw to suck balls
+        # Motors neetd to go backwards to suck balls. Triggered on left trigger.
         self.left_shooting_motor.set(-self.shooting_speed)
         self.right_shooting_motor.set(-self.shooting_speed)
 
     def lt_released(self):
+        # Stop shooting motors when left trigger released.
         self.stop_shooting_motors()
 
 
     def rb_pressed(self):
+        #print("rb_pressed")
         '''
         self.left_motor_group.set(1)
         self.right_motor_group.set(-1)
         '''
         self.robotDrive.arcadeDrive(0, 1)
-        
     def lb_pressed(self):
+        #print("lb_pressed")
         '''
         self.left_motor_group.set(-1)
         self.right_motor_group.set(1)'''
@@ -65,6 +69,7 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def rb_released(self):
+        #print("rb_released")
         '''
         self.left_motor_group.set(0)
         self.right_motor_group.set(0)
@@ -72,6 +77,7 @@ class MyRobot(wpilib.TimedRobot):
         self.robotDrive.stopMotor()
 
     def lb_released(self):
+        #print("lb_released")
         '''
         self.left_motor_group.set(0)
         self.right_motor_group.set(0)
@@ -92,7 +98,7 @@ class MyRobot(wpilib.TimedRobot):
 
 
         self.timer = wpilib.Timer()
-        self.drive_speed = 1
+        #print("robotInit (robot initialisation function)")
 
         """Robot initialization function"""
 
@@ -102,16 +108,16 @@ class MyRobot(wpilib.TimedRobot):
         self.num_topic = self.smart_dashboard.getDoubleTopic("Battery Voltage")
         self.num_pub = self.num_topic.publish()
 
-        front_left_motor = rev.SparkMax(4, rev.SparkMax.MotorType.kBrushed)
+        #front_left_motor = rev.SparkMax(4, rev.SparkMax.MotorType.kBrushed)
         rear_left_motor = rev.SparkMax(2, rev.SparkMax.MotorType.kBrushed)
 
-        self.left_motor_group = wpilib.MotorControllerGroup(front_left_motor, rear_left_motor)
+        self.left_motor_group = wpilib.MotorControllerGroup(rear_left_motor)
 
 
-        front_right_motor = rev.SparkMax(5, rev.SparkMax.MotorType.kBrushed)
+        #front_right_motor = rev.SparkMax(5, rev.SparkMax.MotorType.kBrushed)
         rear_right_motor = rev.SparkMax(1, rev.SparkMax.MotorType.kBrushed)
 
-        self.right_motor_group = wpilib.MotorControllerGroup(front_right_motor, rear_right_motor)
+        self.right_motor_group = wpilib.MotorControllerGroup(rear_right_motor)
 
         self.robotDrive = wpilib.drive.DifferentialDrive(self.left_motor_group, self.right_motor_group)
         self.driverController = wpilib.XboxController(0)
@@ -164,9 +170,9 @@ class MyRobot(wpilib.TimedRobot):
         #self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
 
     def teleopInit(self):
+        #print("entering teleopInit (teleoperation/remote control initialisation function)")
         self.stop_shooting_motors()
         self.robotDrive.arcadeDrive(0, 0)
-        self.robotDrive.stopMotor()
 
     def teleopPeriodic(self):
         # Drive with tank drive.
@@ -177,11 +183,9 @@ class MyRobot(wpilib.TimedRobot):
         left_bumper_down = self.driverController.getLeftBumper()
         right_bumper_down = self.driverController.getRightBumper()
         #loop poll was here before
-        if self.driverController.getYButton():
+        if self.driverController.getAButton():
+            print("A button is down")
             self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
-            
-        elif self.driverController.getAButton():
-            self.arcade_drive_wrapper(-1, 0, squareInputs=False)
 
         elif left_bumper_down == right_bumper_down: #no bumpers OR both bumpers: normal tank drive
             self.robotDrive.tankDrive(
@@ -209,9 +213,10 @@ class MyRobot(wpilib.TimedRobot):
     def autonomousInit(self):
         self.timer.restart()
         self.selected_auto = self.auto_chooser.getSelected()
+        #print("Entering autonomousInit (autonomous period initialisation function)")
 
     def autonomousPeriodic(self):
-
+        #print("autonomousPeriodic")
         if self.selected_auto == "oli_auto":
             print("oli auto")
 
@@ -258,7 +263,7 @@ class MyRobot(wpilib.TimedRobot):
 
 
         elif self.selected_auto == "shoot":
-            if self.timer.get() < 19:
+            if self.timer.get() > 19:
                 print("shoot")
                 self.start_shooting()
             else:
@@ -268,7 +273,6 @@ class MyRobot(wpilib.TimedRobot):
 
         elif self.selected_auto == "half_sec_back_and_shoot":
             #ROBOT NEEDS TO BE BACKWARDS
-
             if self.timer.get() < 0.5:
                 self.robotDrive.arcadeDrive(0.7, 0)
                 self.start_shooting()

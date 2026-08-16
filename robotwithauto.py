@@ -14,17 +14,17 @@ from ntcore import NetworkTableInstance
 class MyRobot(wpilib.TimedRobot):
 
     def rt_pressed(self):
-        #print("rt_pressed")
+        # on right trigger pressed), 
         self.left_shooting_motor.set(-self.shooting_speed)
         self.right_shooting_motor.set(self.shooting_speed)
 
     def rt_released(self):
-        #print("rt_released")
+        # on right trigger released
         self.left_shooting_motor.set(0)
         self.right_shooting_motor.set(0)
 
     def lt_pressed(self):
-        #print("lt_pressed")
+        # on left trigger pressed
         self.left_shooting_motor.set(-self.shooting_speed)
         self.right_shooting_motor.set(-self.shooting_speed)
 
@@ -144,20 +144,16 @@ class MyRobot(wpilib.TimedRobot):
             )
         elif left_bumper_down and not (right_bumper_down): # left bumper pressed only
             self.robotDrive.arcadeDrive(0, 1.0, squareInputs=False)
-            #self.left_motor_group.set(-1)
-            #self.right_motor_group.set(1)
+
         elif (not left_bumper_down) and right_bumper_down: #right bumper pressed only
             self.robotDrive.arcadeDrive(0, -1.0, squareInputs=False)
-            #self.left_motor_group.set(1)
-            #self.right_motor_group.set(-1)
+
         else:
             self.robotDrive.tankDrive(
                 -self.driverController.getLeftY(), -self.driverController.getRightY()
             )
-            #self.left_motor_group.set(0)
-            #self.right_motor_group.set(0)
 
-        #self.loop.poll()
+
 
 
         if self.driverController.getRightTriggerAxis() > self.shootThreshold:

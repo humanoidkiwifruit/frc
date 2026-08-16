@@ -20,8 +20,8 @@ from ntcore import NetworkTableInstance
 
 class MyRobot(wpilib.TimedRobot):
 
-    def arcade_drve_wrapper(self, xspeed, zrotation):
-        self.robotDrive.arcadeDrive(xspeed * self.drive_speed, zrotation)
+    def arcade_drive_wrapper(self, xspeed, zrotation, squareInputs=True):
+        self.robotDrive.arcadeDrive(xspeed * self.drive_speed, zrotation, squareInputs=squareInputs)
 
     def start_blurting_balls(self):
         self.left_shooting_motor.set(self.shooting_speed)
@@ -55,13 +55,15 @@ class MyRobot(wpilib.TimedRobot):
         self.left_motor_group.set(1)
         self.right_motor_group.set(-1)
         '''
-        self.robotDrive.arcadeDrive(0, 1)
+        self.arcade_drive_wrapper(0, 1)
+        #self.robotDrive.arcadeDrive(0, 1)
         
     def lb_pressed(self):
         '''
         self.left_motor_group.set(-1)
         self.right_motor_group.set(1)'''
-        self.robotDrive.arcadeDrive(0, -1)
+        self.arcade_drive_wrapper(0, -1)
+        #self.robotDrive.arcadeDrive(0, -1)
 
 
     def rb_released(self):
@@ -165,7 +167,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopInit(self):
         self.stop_shooting_motors()
-        self.robotDrive.arcadeDrive(0, 0)
+        #self.robotDrive.arcadeDrive(0, 0)
         self.robotDrive.stopMotor()
 
     def teleopPeriodic(self):
@@ -178,20 +180,23 @@ class MyRobot(wpilib.TimedRobot):
         right_bumper_down = self.driverController.getRightBumper()
         #loop poll was here before
         if self.driverController.getYButton():
-            self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
-            
+            self.arcade_drive_wrapper(1, 0, squareInputs=False)
+            #self.robotDrive.arcadeDrive(1, 0, squareInputs=False)
         elif self.driverController.getAButton():
             self.arcade_drive_wrapper(-1, 0, squareInputs=False)
+
 
         elif left_bumper_down == right_bumper_down: #no bumpers OR both bumpers: normal tank drive
             self.robotDrive.tankDrive(
                 -self.driverController.getLeftY(), -self.driverController.getRightY()
             )
         elif left_bumper_down and not (right_bumper_down): # left bumper pressed only
-            self.robotDrive.arcadeDrive(0, 1.0, squareInputs=False)
+            self.arcade_drive_wrapper(0, 1, squareInputs=False)
+            #self.robotDrive.arcadeDrive(0, 1.0, squareInputs=False)
 
         elif (not left_bumper_down) and right_bumper_down: #right bumper pressed only
-            self.robotDrive.arcadeDrive(0, -1.0, squareInputs=False)
+            self.arcade_drive_wrapper(0, -1, squareInputs=False)
+            #self.robotDrive.arcadeDrive(0, -1.0, squareInputs=False)
 
         else: #Something weird
             self.robotDrive.tankDrive(
@@ -269,7 +274,7 @@ class MyRobot(wpilib.TimedRobot):
         elif self.selected_auto == "half_sec_back_and_shoot":
             #ROBOT NEEDS TO BE BACKWARDS
 
-            if self.timer.get() < 0.5:
+            if self.timer.get() < 0.25:
                 self.robotDrive.arcadeDrive(0.7, 0)
                 self.start_shooting()
             elif self.timer.get() < 19:
