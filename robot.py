@@ -56,7 +56,7 @@ class MyRobot(wpilib.TimedRobot):
         self.right_motor_group.set(-1)
         '''
         self.robotDrive.arcadeDrive(0, 1)
-        
+
     def lb_pressed(self):
         '''
         self.left_motor_group.set(-1)
@@ -87,7 +87,7 @@ class MyRobot(wpilib.TimedRobot):
         self.auto_chooser.addOption("oli_auto", "oli_auto")
         self.auto_chooser.addOption("shoot", "shoot")
         self.auto_chooser.addOption("half_sec_back_and_shoot", "half_sec_back_and_shoot")
-        
+
         SmartDashboard.putData("Autonomous Chooser", self.auto_chooser)
 
 
@@ -115,7 +115,7 @@ class MyRobot(wpilib.TimedRobot):
 
         self.robotDrive = wpilib.drive.DifferentialDrive(self.left_motor_group, self.right_motor_group)
         self.driverController = wpilib.XboxController(0)
-
+        self.shootController = wpilib.XboxController(1)
 
         self.right_shooting_motor = rev.SparkMax(3, rev.SparkMax.MotorType.kBrushed)
         self.left_shooting_motor = rev.SparkMax(6, rev.SparkMax.MotorType.kBrushed)
@@ -130,13 +130,13 @@ class MyRobot(wpilib.TimedRobot):
 
         self.loop = wpilib.event.EventLoop()
 
-        self.rt_event = self.driverController.rightTrigger(self.shootThreshold, self.loop)
-        self.lt_event = self.driverController.leftTrigger(self.shootThreshold, self.loop)
+        self.rt_event = self.shootController.rightTrigger(self.shootThreshold, self.loop)
+        self.lt_event = self.shootController.leftTrigger(self.shootThreshold, self.loop)
 
         self.rb_event = self.driverController.rightBumper(self.loop)
         self.lb_event = self.driverController.leftBumper(self.loop)
 
-        self.b_event = self.driverController.B(self.loop)
+        self.b_event = self.shootController.B(self.loop)
 
 
 
@@ -148,7 +148,7 @@ class MyRobot(wpilib.TimedRobot):
 
         self.b_event.rising().ifHigh(lambda: self.start_blurting_balls())
         self.b_event.falling().ifHigh(lambda: self.stop_shooting_motors())
-        
+
 
         #self.rb_event.rising().ifHigh(lambda: self.rb_pressed())
         #self.rb_event.falling().ifHigh(lambda: self.rb_released())
@@ -160,7 +160,6 @@ class MyRobot(wpilib.TimedRobot):
 
     def robotPeriodic(self):
         self.loop.poll()
-        pass
         #self.num_pub.set(wpilib.RobotController.getBatteryVoltage())
 
     def teleopInit(self):
@@ -201,10 +200,11 @@ class MyRobot(wpilib.TimedRobot):
         # self.loop.poll()
 
 
-        if self.driverController.getRightTriggerAxis() > self.shootThreshold:
+        '''if self.shootController.getRightTriggerAxis() > self.shootThreshold:
             pass
             #DO NOT REMOVE FOLLOWING COMMENT:
             #print("shoot the cannon pow pow")
+        '''
 
     def autonomousInit(self):
         self.timer.restart()
@@ -226,7 +226,7 @@ class MyRobot(wpilib.TimedRobot):
 
             elif self.timer.get() > 3 and self.timer.get() < 3.5:
                 self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
-            
+
             elif self.timer.get() > 3.5 and self.timer.get() < 4:
                 self.robotDrive.arcadeDrive(0, -0.3, squareInputs=False)
 
